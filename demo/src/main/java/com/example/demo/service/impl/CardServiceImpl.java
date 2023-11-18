@@ -2,6 +2,8 @@ package com.example.demo.service.impl;
 
 import com.example.demo.dto.CartDto;
 import com.example.demo.entity.Cart;
+import com.example.demo.entity.Product;
+import com.example.demo.exception.CartException;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.CartRepository;
 import com.example.demo.service.CartService;
@@ -17,8 +19,13 @@ import java.util.stream.Collectors;
 public class CardServiceImpl implements CartService {
     private CartRepository cartRepository;
     private ModelMapper modelMapper;
+    private static int countCart = 0;
     @Override
     public CartDto createCart(CartDto cartDto) {
+        countCart++;
+        if(countCart > 1){
+            throw new CartException("Cart is already created");
+        }
         Cart cart = modelMapper.map(cartDto,Cart.class);
         Cart savedCart = cartRepository.save(cart);
         return modelMapper.map(savedCart,CartDto.class);
@@ -42,7 +49,6 @@ public class CardServiceImpl implements CartService {
     public CartDto updateCartById(int id, CartDto cartDto) {
         Cart cart = cartRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException("Cart","ID",id));
-        cart.setIdUser(cartDto.getIdUser());
         cart.setQuanlity(cartDto.getQuanlity());
         cart.setPrice(cartDto.getPrice());
         Cart updateCart = cartRepository.save(cart);
@@ -51,8 +57,14 @@ public class CardServiceImpl implements CartService {
 
     @Override
     public void deleteCartById(int id) {
-        cartRepository.findById(id).orElseThrow(() ->
-                new ResourceNotFoundException("Cart","ID",id));
+        countCart = 0;
+        Cart cart = cartRepository.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Cart", "ID", id));
+        List<Product> products = cart.getProducts();
+        for(Product product : products){
+            product.setCart(null);
+        }
+        cart.setProducts(null);
         cartRepository.deleteById(id);
     }
 }

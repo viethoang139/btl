@@ -14,7 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 public class CartDto {
     private int id;
-    private int idUser;
     private int quanlity;
     private double price;
     private List<ProductDto> products;

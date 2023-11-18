@@ -18,11 +18,9 @@ public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Column(nullable = false)
-    private int idUser;
     private int quanlity;
     private double price;
-    @OneToMany(mappedBy = "cart",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "cart")
     private List<Product> products = new ArrayList<>();
 
 }
